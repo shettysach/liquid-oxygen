@@ -18,8 +18,7 @@ scanTokens [] location = Right [(Eof, location)]
 scanTokens chars@(c : cs) location@(line, col)
   -- Keywords and identifiers
   | isAlpha c || c == '_' = do
-      let validChars v = isAlphaNum v || v == '_'
-      let (lexeme, cs') = span validChars chars
+      let (lexeme, cs') = span (\v -> isAlphaNum v || v == '_') chars
       let token = (scanWord lexeme, location)
       let col' = col + length lexeme
       (token :) <$> scanTokens cs' (line, col')
