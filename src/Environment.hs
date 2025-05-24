@@ -41,9 +41,9 @@ initialize name value env@(Env ref _) = modifyIORef ref (Map.insert name value) 
 getHere :: String' -> Env -> IO (Either RuntimeError Literal)
 getHere (name, pos) (Env ref _) = do
   vars <- readIORef ref
-  case Map.lookup name vars of
-    Just val -> pure . Right $ val
-    Nothing  -> pure . Left $ RuntimeError "Undefined variable" (name, pos)
+  pure $ case Map.lookup name vars of
+    Just val -> Right val
+    Nothing  -> Left $ RuntimeError "Undefined variable" (name, pos)
 
 getAt :: String' -> Distances -> Env -> IO (Either RuntimeError Literal)
 getAt name dists env = getHere name $ case getDistance name dists of
@@ -100,5 +100,5 @@ calcDistance name = List.findIndex (Map.member name) . toList
 
 getDistance :: String' -> Distances -> Either RuntimeError Int
 getDistance name dists = case Map.lookup name dists of
-  Nothing   -> Left $ RuntimeError "Unresolved variable" name
   Just dist -> Right dist
+  Nothing   -> Left $ RuntimeError "Unresolved variable" name

@@ -78,8 +78,8 @@ resolveFunction (Function name params stmts') ntype (ftype, ctype, dists, stack)
 resolveFunction _ _ _ = undefined
 
 resolveMethod :: Stmt -> State -> Either ResolveError State
-resolveMethod mthd@(Function (fst -> "init") _ _) = resolveFunction mthd Init
-resolveMethod mthd                                = resolveFunction mthd Mthd
+resolveMethod mthd@(Function ("init", _) _ _) = resolveFunction mthd Init
+resolveMethod mthd                            = resolveFunction mthd Mthd
 
 resolveExpr :: Expr -> State -> Either ResolveError State
 resolveExpr (Literal _) state               = Right state

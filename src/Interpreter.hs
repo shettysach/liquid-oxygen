@@ -66,8 +66,8 @@ interpretStmts (stmt : stmts) dists env = case stmt of
   Class name (Just super) methods -> do
     (superLit, env') <- evaluate super dists env
     super' <- case superLit of
-      Class' superLoxCls -> pure $ Just superLoxCls
-      _                  -> throwE $ RuntimeError "Superclass must be a class" name
+      Class' super' -> pure $ Just super'
+      _             -> throwE $ RuntimeError "Superclass must be a class" name
     envS <- liftIO $ liftIO (child env) >>= initialize "super" superLit
     methods' <- liftIO $ mapMethods methods dists envS Map.empty
     let klass = LoxCls name super' methods'
@@ -124,7 +124,7 @@ evalExpr expr dists = case expr of
     calleeLit <- evalExpr callee dists
     argLits <- mapM (`evalExpr` dists) (reverse argExprs)
     case calleeLit of
-      Function' funk           -> callFunction funk argLits
+      Function' func           -> callFunction func argLits
       NativeFn name func arity -> callFunction (LoxFn (name, pos) func arity undefined) argLits
       Class' klass             -> callClass klass argLits
       literal                  -> throwE $ RuntimeError "Calling non-function/non-class" (show literal, pos)
@@ -148,9 +148,9 @@ evalExpr expr dists = case expr of
   Super pos method -> do
     env <- lift get
     dist <- except $ getDistance ("super", pos) dists
-    Class' superLoxCls <- ExceptT . liftIO . getHere ("super", pos) $ ancestor env dist
+    Class' super <- ExceptT . liftIO . getHere ("super", pos) $ ancestor env dist
     instance' <- ExceptT . liftIO . getHere ("this", pos) $ ancestor env (dist - 1)
-    findMethod (Just superLoxCls) method instance' <&> Function'
+    findMethod (Just super) method instance' <&> Function'
 
 callFunction :: LoxFn -> [Literal] -> Eval Literal
 callFunction (LoxFn name func arity closure) args =

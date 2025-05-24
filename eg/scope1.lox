@@ -12,10 +12,11 @@ print a;
 print a;
 
 {
-    a = "global_assign"; // This a does not get resolved for some reason
+    a = "global_assign"; 
     print a;
 
-    var a = "local";
+    var a;
+    print a = "local_assign";
     print a;
 }
 
